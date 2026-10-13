@@ -67,6 +67,17 @@ struct ControlDataFrame {
 };
 #pragma pack(pop)
 
+// Thread-safe telemetry snapshot; empty timestamps mean unavailable data.
+struct CBoardState
+{
+  double bullet_speed = 0;
+  Mode mode = Mode::idle;
+  double ft_angle = 0;
+  Eigen::Quaterniond q = Eigen::Quaterniond::Identity();
+  std::chrono::steady_clock::time_point imu_time{};
+  std::chrono::steady_clock::time_point status_time{};
+};
+
 class CBoard
 {
 public:
@@ -79,7 +90,8 @@ public:
 
   Eigen::Quaterniond imu_at(std::chrono::steady_clock::time_point timestamp);
 
-  void send(Command command) const;
+  void send(Command command, bool replace_pending = false) const;
+  CBoardState state() const;
 
 private:
   struct IMUData
@@ -93,6 +105,8 @@ private:
   mutable std::mutex queue_mutex_;
   const size_t queue_capacity_ = 5000;
 
+  mutable std::mutex state_mutex_;
+  CBoardState state_;
   mutable SerialPortMultithread serial_;
   IMUData data_ahead_;
   IMUData data_behind_;

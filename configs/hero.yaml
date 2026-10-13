@@ -1,0 +1,96 @@
+# 英雄独立配置模板：视觉、相机、串口和内外参继承 DGE standard3.yaml。
+# 这些内外参尚未确认适用于英雄；完成本车核对/标定后再确认。
+enemy_color: "red"
+# enemy_color: "blue"
+
+#####-----神经网络参数-----#####
+yolo_name: yolov5
+classify_model: assets/tiny_resnet.onnx
+yolo11_model_path: assets/yolo11.xml
+yolov8_model_path: assets/yolov8.xml
+yolov5_model_path: assets/yolov5.xml
+device: CPU
+min_confidence: 0.8
+use_traditional: false
+
+#####-----ROI-----#####
+roi:
+  x: 420
+  y: 50
+  width: 600
+  height: 600
+
+use_roi: false
+
+#####-----传统方法参数-----#####
+threshold: 150
+max_angle_error: 45 # degree
+min_lightbar_ratio: 1.5
+max_lightbar_ratio: 20
+min_lightbar_length: 8
+min_armor_ratio: 1
+max_armor_ratio: 5
+max_side_ratio: 1.5
+max_rectangular_error: 25 # degree
+
+#####-----tracker参数-----#####
+min_detect_count: 5 # 最小确认帧数
+max_temp_lost_count: 15 #最大暂存丢失帧数
+outpost_max_temp_lost_count: 75
+
+camera_name: "hikrobot"
+exposure_ms: 3.0
+gain: 16.0
+vid_pid: "2bdf:0001"
+
+#  1  0  0
+#  0  1  0
+#  0  0  1
+# 重投影误差: 0.2306px
+camera_matrix: [2442.5304749177199, 0, 731.17452249534051, 0, 2371.5149834039908, 596.64702898586643, 0, 0, 1]
+distort_coeffs: [-0.11653686548721244, 0.24551521188463793, 0.0039319221499908904, 0.0017333678296863461, 0]
+
+R_gimbal2imubody: [1, 0, 0, 0, 1, 0, 0, 0, 1]
+
+# 相机同理想情况的偏角: yaw1.16 pitch-0.31 roll5.71 degree
+# 标定板到世界坐标系原点的水平距离: 2.68 m
+# 标定板同竖直摆放时的偏角: yaw-88.61 pitch7.16 roll3.81 degree
+R_camera2gimbal: [-0.020636912731324751, -0.0032975320717751294, 0.99978159820790646, -0.99483189289435459, 0.09950477445739446, -0.020206551918082242, -0.099416410683321188, -0.99503162067464879, -0.0053339614196713245]
+t_camera2gimbal: [-0.017505578613869227, -0.023555207264750914, 0.052398191946165622]
+
+
+# Linux 接usb转ttl 设备名 ttyUSB0
+# 接cboard虚拟串口 设备名 ttyACM0
+#####-----cboard参数-----#####
+serial_device: "/dev/gimbal"   # 串口设备
+serial_baudrate: 115200         # 波特率
+
+
+hero:
+  calibration_confirmed: false
+  auto_fire: false
+  telemetry_timeout: 0.2     # s，IMU 与状态帧分别检查
+  imu_time_offset: -0.001    # s，加到图像时间戳；按本车同步误差校准
+  min_speed: 10.0            # m/s，有效弹速范围，异常时不回退为步兵弹速
+  max_speed: 20.0
+  launch_delay: 0.15         # s，仅示例：下发至弹丸出膛的实测延迟
+  max_frame_age: 0.1         # s，含检测/跟踪耗时
+  max_range: 10.0            # m，应用工作距离上限
+  spin_threshold: 1.5       # rad/s，正反方向统一用绝对值
+  facing_tolerance: 0.20     # rad，到达时装甲法线窗口
+  position_tolerance: 0.03   # m，旋转装甲到达定点的最大偏差
+  yaw_tolerance: 0.01        # rad，当前云台对准容差
+  pitch_tolerance: 0.01     # rad
+  alignment_tolerance: 0.03  # m，距离增加时用 atan2(线性容差, 距离) 收紧上述角度上限
+  max_phase_std: 0.15        # rad，预测相位标准差上限
+  min_interval: 0.7          # s，指令脉冲最小间隔，不等于实际出弹反馈
+  yaw_offset: 0.0            # rad，英雄独立零偏，勿填 degree
+  pitch_offset: 0.0          # rad，抬头补偿为正；输出协议 pitch 向上为负
+  settle_frames: 5           # 连续 tracking 帧数
+  ballistic:
+    gravity: 9.7833          # m/s^2
+    drag: 0.0                # 1/m，零值是无阻力基线，需实测拟合后再用于实机
+    min_pitch: -0.35         # rad，抬头为正，下俯为负
+    max_pitch: 0.70          # rad，低弹道解搜索边界
+    max_time: 3.0            # s，积分上限
+    step: 0.002              # s，RK4 步长

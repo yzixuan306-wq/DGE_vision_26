@@ -17,11 +17,11 @@ namespace auto_aim
 class Target
 {
 public:
-  ArmorName name;
-  ArmorType armor_type;
-  ArmorPriority priority;
-  bool jumped;
-  int last_id;  // debug only
+  ArmorName name = ArmorName::not_armor;
+  ArmorType armor_type = ArmorType::small;
+  ArmorPriority priority = ArmorPriority::fifth;
+  bool jumped = false;
+  int last_id = 0;  // debug only
 
   Target() = default;
   Target(

@@ -54,12 +54,13 @@ public:
         tools::logger()->info("SerialPortMultithread destroyed");
     }
 
-    void write(const std::vector<uint8_t>& data)
+    void write(const std::vector<uint8_t>& data, bool replace_pending = false)
     {
         if (!connected_.load() || quit_.load()) return;
 
         {
             std::lock_guard<std::mutex> lock(write_mutex_);
+            if (replace_pending) write_queue_.clear();
             write_queue_.push_back(data);
             write_pending_ = true;
         }
@@ -182,7 +183,7 @@ private:
                 send_data(data_to_send);
             }
             
-            if (write_queue_.empty()) std::this_thread::sleep_for(std::chrono::milliseconds(1));
+            // The condition variable waits for work; do not inspect the queue without its lock.
         }
     }
 
