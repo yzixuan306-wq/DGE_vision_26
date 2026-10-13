@@ -7,6 +7,14 @@
 
 *感谢同济大学SuperPower战队为RM开源社区做出贡献。*
 
+## 英雄入口
+
+新增独立 `hero` / `hero_replay`，复用本工程 Camera、YOLO、Solver、Tracker 和 CBoard
+`0xAA/0xBB/0xCC` 协议。英雄配置为 `configs/hero.yaml`；默认未确认标定且关闭自动开火。
+比较结果、迁移范围、数据流、使用方法和完整改动清单见
+[英雄迁移说明](docs/hero/MIGRATION.md)，实际检查结果见
+[英雄验证记录](docs/hero/VALIDATION.md)。
+
 ## 以下照搬[sp_vision_25](https://github.com/TongjiSuperPower/sp_vision_25)的README.md：
 ## [同济大学SuperPower战队25赛季自瞄算法开源](https://github.com/TongjiSuperPower/sp_vision_25)
 
